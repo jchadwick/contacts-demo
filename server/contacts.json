@@ -1,0 +1,57 @@
+[
+    {
+      "id": 1,
+      "displayName": "Frank Castle",
+      "firstName": "Frank",
+      "lastName": "Castle",
+      "dateOfBirth": "1944-11-15T00:00:00",
+      "phoneNumber": "5324219953",
+      "emailAddress": "punisher@marvel.com",
+      "occupation": "US Marine Corps Scout Sniper (retired)",
+      "profileImageUrl": "https://www.famousbirthdays.com/headshots/jon-bernthal-4.jpg"
+    },
+    {
+      "id": 2,
+      "displayName": "Jane Foster",
+      "firstName": "Jane",
+      "lastName": "Foster",
+      "dateOfBirth": "1964-09-14T00:00:00",
+      "phoneNumber": "4672442099",
+      "emailAddress": "jane@marvel.com",
+      "occupation": "Astrophysicist",
+      "profileImageUrl": "https://vignette.wikia.nocookie.net/wwcbm/images/1/19/Jane_Foster_mcu.jpg/revision/latest/scale-to-width-down/270?cb=20171006135017"
+    },
+    {
+      "id": 3,
+      "displayName": "Jessica Jones",
+      "firstName": "Jessica",
+      "lastName": "Jones",
+      "dateOfBirth": "1981-11-27T00:00:00",
+      "phoneNumber": "2105532343",
+      "emailAddress": "jess@marvel.com",
+      "occupation": "Private Investigator",
+      "profileImageUrl": "https://vignette.wikia.nocookie.net/wwcbm/images/4/48/JessicaJones_f.jpg/revision/latest/scale-to-width-down/109?cb=20160817215833"
+    },
+    {
+      "id": 4,
+      "displayName": "Peter Quill",
+      "firstName": "Peter",
+      "lastName": "Quill",
+      "dateOfBirth": "1962-02-04T00:00:00",
+      "phoneNumber": "2105546642",
+      "emailAddress": "star-lord@marvel.com",
+      "occupation": "Pilot",
+      "profileImageUrl": "https://pbs.twimg.com/profile_images/615529800619311105/oMmYJ_HR_200x200.jpg"
+    },
+    {
+      "id": 5,
+      "displayName": "Tony Stark",
+      "firstName": "Tony",
+      "lastName": "Stark",
+      "dateOfBirth": "1970-05-29T00:00:00",
+      "phoneNumber": "2106437753",
+      "emailAddress": "tony@marvel.com",
+      "occupation": "Entrepreneur",
+      "profileImageUrl": "https://i.pinimg.com/originals/ac/f2/9c/acf29c05db363080a2d6616cb0f6b7eb.png"
+    }
+  ]
