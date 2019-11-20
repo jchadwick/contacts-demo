@@ -1,0 +1,96 @@
+@import url("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css");
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+
+body {
+  background-color: rgb(133, 133, 133);
+}
+
+#app {
+  max-width: 80%;
+  min-height: 15em;
+  margin: 4rem auto;
+  border-radius: 1em;
+  font-family: "Roboto", "Open Sans", sans-serif;
+  background-color: #fff;
+  padding: 1rem;
+}
+
+.contactsPage {
+  --gridGap: 10px;
+  margin-top: 1rem;
+  display: grid;
+  grid-gap: var(--gridGap);
+  padding: 0.5rem calc(0.5rem + var(--gridGap)) 0.5rem 0.5rem;
+  min-height: 20em;
+  grid-template-areas:
+    "searchBar    searchBar"
+    "contactsList contactDetails";
+  grid-template-rows: 3rem auto;
+  grid-template-columns: 30% 70%;
+}
+
+.contactsSearchBar {
+  grid-area: searchBar;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.contactsList {
+  grid-area: contactsList;
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  justify-content: flex-start;
+}
+.contactsList .list-group {
+  flex-grow: 1;
+}
+.contactsList .list-group-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+}
+.contactsList .list-group-item img {
+  --imgSize: 2rem;
+  width: var(--imgSize);
+  height: var(--imgSize);
+  margin-right: calc(var(--imgSize) / 3);
+  border-radius: calc(var(--imgSize) / 2);
+  object-fit: cover;
+}
+.contactsList .list-group-item div {
+  flex-grow: 1;
+  font-size: 110%;
+}
+
+.contactDetails {
+  grid-area: contactDetails;
+  padding: 1rem 0;
+}
+.contactDetails .displayName {
+  text-align: center;
+  margin-bottom: 1em;
+}
+.contactDetails label {
+  font-size: 110%;
+  font-weight: 600;
+  width: 8em;
+  text-align: right;
+  margin-right: 0.5rem;
+}
+.contactDetails .avatar {
+  float: right;
+  width: 30%;
+}
+
+/** small screen settings **/
+@media only screen and (max-width: 600px) {
+  body {
+    font-size: 0.7rem;
+  }
+  .contactsList .list-group-item {
+    padding: 0.4rem 0.6rem;
+  }
+}
