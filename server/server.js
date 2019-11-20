@@ -9,6 +9,26 @@ const app = express();
 
 app.use(cors({ origin: "*" }));
 
+let requestCount = 0;
+
+app.use((req, res, next) => {
+  requestCount += 1;
+
+  res.setHeader("X-RequestCount", String(requestCount));
+
+  const requestedStatus = Number(req.query.status);
+
+  if (requestedStatus || requestCount % 2) {
+    setTimeout(() => {
+      console.log(`${req.method} ${req.originalUrl} => CHAOS MONKEY!`);
+      res.statusMessage = "CHAOS MONKEY!";
+      res.sendStatus(requestedStatus || 500);
+    }, 2000);
+  } else {
+    next();
+  }
+});
+
 app.use(({ method, originalUrl }, res, next) => {
   next();
   console.log(`${method} ${originalUrl} => ${res.statusCode}`);
@@ -23,7 +43,7 @@ app.get("/contacts", (_, res) => res.send(contacts));
 app.get("/contacts/suggest/:query", (req, res) => {
   const query = (req.params.query || "").toLowerCase();
   const filtered = contacts.filter(x => x.displayName.includes(query));
-  
+
   const results = filtered.map(({ id, displayName, profileImageUrl }) => ({
     id,
     displayName,
