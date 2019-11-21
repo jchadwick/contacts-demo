@@ -9,22 +9,29 @@ const app = express();
 
 app.use(cors({ origin: "*" }));
 
-let requestCount = 0;
+let requestQueue = {};
 
 app.use((req, res, next) => {
-  requestCount += 1;
+  const requestKey = `${req.method} ${req.originalUrl}`;
+  const requestedStatusCode = Number(req.query.chaos);
 
-  res.setHeader("X-RequestCount", String(requestCount));
+  // trigger chaos if this is the first request to this URL
+  // or the user asked for it (via querystring)
+  const introduceALittleAnarchy =
+    requestQueue[requestKey] == null || requestedStatusCode;
 
-  const requestedStatus = Number(req.query.status);
+  if (introduceALittleAnarchy) {
+    // Track chaos so we don't trigger it next time
+    requestQueue[requestKey] = true;
 
-  if (requestedStatus || requestCount % 2) {
     setTimeout(() => {
-      console.log(`${req.method} ${req.originalUrl} => CHAOS MONKEY!`);
+      console.log(`${requestKey} => CHAOS MONKEY!`);
       res.statusMessage = "CHAOS MONKEY!";
-      res.sendStatus(requestedStatus || 500);
+      res.sendStatus(requestedStatusCode || 500);
     }, 2000);
   } else {
+    // Untrack chaos so it can be triggered next time
+    delete requestQueue[requestKey];
     next();
   }
 });
@@ -53,10 +60,26 @@ app.get("/contacts/suggest/:query", (req, res) => {
   res.send(results);
 });
 
-app.put("/contacts", (req, res) => {
+app.post("/contacts", (req, res) => {
+  const {
+    displayName,
+    emailAddress,
+    profileImageUrl,
+    firstName,
+    lastName
+  } = req.body;
+
+  const id = contactId++;
+  
   const contact = {
-    id: contactId++,
-    ...req.body
+    id,
+    displayName: displayName ? displayName : `${firstName} ${lastName}`.trim(),
+    firstName,
+    lastName,
+    emailAddress,
+    profileImageUrl: profileImageUrl
+      ? profileImageUrl
+      : `https://api.adorable.io/avatars/285/${id}${firstName}${lastName}`
   };
 
   contacts.push(contact);
@@ -69,7 +92,15 @@ app.get(
   existingContactAction((contact, req, res) => res.send(contact))
 );
 
-app.post(
+app.put(
+  "/contacts/:contactId",
+  existingContactAction((contact, req, res) => {
+    Object.assign(contact, req.body);
+    res.send(contact);
+  })
+);
+
+app.patch(
   "/contacts/:contactId",
   existingContactAction((contact, req, res) => {
     Object.assign(contact, req.body);

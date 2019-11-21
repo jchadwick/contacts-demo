@@ -1,5 +1,5 @@
 import { Contact } from "../model";
-import { RestApi } from "./RestApi";
+import { RestfulService } from "./RestfulService";
 
 interface AutoSuggestResult {
   id: string;
@@ -7,27 +7,30 @@ interface AutoSuggestResult {
   profileImageUrl: string;
 }
 
-export class ContactsService {
-  private readonly api: RestApi;
+export class ContactsService extends RestfulService {
+  createContact = async (contact: Omit<Contact, "id">) => {
+    const saved = await $.ajax({
+      url: this.baseUrl,
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(contact)
+    });
 
-  constructor(baseUrl: string) {
-    this.api = new RestApi(baseUrl);
-  }
+    return new Contact(saved);
+  };
 
-  createContact = (contact: Omit<Contact, "id">) =>
-    this.api.post<Contact>("", contact).then(x => new Contact(x));
-
-  deleteContact = (contactId: number) => this.api.delete(contactId);
+  deleteContact = (contactId: number) => this.delete(contactId);
 
   getContact = (contactId: number) =>
-    this.api.get(contactId).then(x => x.map(y => new Contact(y)));
+    this.get(contactId).then(x => x.map(y => new Contact(y)));
 
-  getContacts = () => this.api.get().then(x => x.map(y => new Contact(y)));
+  getContacts = () => this.get().then(x => x.map(y => new Contact(y)));
 
   suggest = (query: string) =>
-    this.api.get<AutoSuggestResult[]>(["suggest", query]);
+    this.get<AutoSuggestResult[]>(["suggest", query]);
 
   updateContact = ({ id, ...updated }: { id: number } & Partial<Contact>) =>
-    this.api.post<Contact>(id, updated).then(x => new Contact(x));
+    this.patch<Contact>(id, updated).then(x => new Contact(x));
 }
 
+export default new ContactsService("http://localhost:8080/contacts");

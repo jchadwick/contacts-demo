@@ -1,4 +1,8 @@
 import React from "react";
-import { ContactsPage } from "./ContactsPage/ContactsPage";
+import { ContactsPage } from "./Pages/ContactsPage";
 
-export const App = () => <ContactsPage />;
+export const App = () => (
+  <>
+    <ContactsPage />
+  </>
+);
