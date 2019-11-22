@@ -1,6 +1,5 @@
 import { Contact } from "../model";
 import React from "react";
-import { action, toJS, reaction } from "mobx";
 import { useObserver } from "mobx-react-lite";
 
 interface AddNewContactDialogProps {
