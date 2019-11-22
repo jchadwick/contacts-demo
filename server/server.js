@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const contacts = require("./contacts.json");
 
-let contactId = contacts.reduce((max, { id }) => Math.max(max, id), 0);
+let contactId = contacts.reduce((max, { id }) => Math.max(max, id), 0) + 1;
 
 const app = express();
 
@@ -70,7 +70,7 @@ app.post("/contacts", (req, res) => {
   } = req.body;
 
   const id = contactId++;
-  
+
   const contact = {
     id,
     displayName: displayName ? displayName : `${firstName} ${lastName}`.trim(),
