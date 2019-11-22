@@ -55,7 +55,6 @@ export const ContactsPage = () => {
             </div>
             <div className="col-md-3">
               <button
-                role="button"
                 className="pull-right btn btn-small btn-primary"
                 onClick={store.initiateNewContact}
               >
