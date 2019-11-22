@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const ChaosMonkey = require("./ChaosMonkey");
 const contacts = require("./contacts.json");
 
 let contactId = contacts.reduce((max, { id }) => Math.max(max, id), 0) + 1;
@@ -9,32 +10,7 @@ const app = express();
 
 app.use(cors({ origin: "*" }));
 
-let requestQueue = {};
-
-app.use((req, res, next) => {
-  const requestKey = `${req.method} ${req.originalUrl}`;
-  const requestedStatusCode = Number(req.query.chaos);
-
-  // trigger chaos if this is the first request to this URL
-  // or the user asked for it (via querystring)
-  const introduceALittleAnarchy =
-    requestQueue[requestKey] == null || requestedStatusCode;
-
-  if (introduceALittleAnarchy) {
-    // Track chaos so we don't trigger it next time
-    requestQueue[requestKey] = true;
-
-    setTimeout(() => {
-      console.log(`${requestKey} => CHAOS MONKEY!`);
-      res.statusMessage = "CHAOS MONKEY!";
-      res.sendStatus(requestedStatusCode || 500);
-    }, 2000);
-  } else {
-    // Untrack chaos so it can be triggered next time
-    delete requestQueue[requestKey];
-    next();
-  }
-});
+app.use(ChaosMonkey);
 
 app.use(({ method, originalUrl }, res, next) => {
   next();

@@ -14,7 +14,7 @@ export const ContactsList = ({
   selectedContact
 }: ContactsListProps) =>
   useObserver(() => (
-    <ul className="list-group">
+    <ul className="contactsList list-group">
       {contacts.map(contact => (
         <li
           key={contact.id}

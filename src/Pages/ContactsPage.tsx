@@ -1,16 +1,19 @@
-import React from "react";
+import { RouteComponentProps } from "@reach/router";
 import { useObserver } from "mobx-react-lite";
-import { ContactsPageState } from "./ContactsPageState";
-import { useEventListener, useStore } from "../hooks";
-import { ContactsSearchBar } from "../components/ContactsSearchBar";
-import { ContactsList } from "../components/ContactsList";
+import React from "react";
+import { IoMdAdd as AddIcon } from "react-icons/io";
+import { AlertPanel } from "../components/AlertPanel";
 import { ContactDetails } from "../components/ContactDetails";
-import { IoIosAdd } from "react-icons/io";
-import "./ContactsPage.css";
+import { ContactsList } from "../components/ContactsList";
+import { ContactsSearchBar } from "../components/ContactsSearchBar";
+import { useEventListener, useStore } from "../hooks";
 import { AddNewContactDialog } from "./AddNewContactDialog";
-import { Snackbar } from "../components/Snackbar";
+import "./ContactsPage.css";
+import { ContactsPageState } from "./ContactsPageState";
+import { StretchBox } from "../components/StretchBox";
+import { Loading } from "../components/Loading";
 
-export const ContactsPage = () => {
+export const ContactsPage = (_: RouteComponentProps) => {
   const store = useStore(ContactsPageState);
 
   useEventListener(
@@ -36,56 +39,71 @@ export const ContactsPage = () => {
 
   return useObserver(() => (
     <>
-      <div id="app">
-        {store.error && (
-          <Snackbar type="danger" onClose={store.clearError}>
-            {store.error}
-          </Snackbar>
-        )}
+      {store.notification && (
+        <AlertPanel
+          hideAfter={3000}
+          className="notifications"
+          type={store.notification.type}
+          message={store.notification.message}
+          onClose={store.clearNotification}
+        />
+      )}
 
-        <h1 className="text-center">My Contacts</h1>
+      <header className="row">
+        <h2 className="title col-md-9">My Contacts</h2>
 
-        <div className="contactsPage card">
-          <div className="contactsSearchBar row">
-            <div className="col-md-9">
-              <ContactsSearchBar
-                filter={store.filter}
-                onFilterChanged={filter => (store.filter = filter)}
-              />
-            </div>
-            <div className="col-md-3">
-              <button
-                className="pull-right btn btn-small btn-primary"
-                onClick={store.initiateNewContact}
-              >
-                <IoIosAdd />
-                Add Contact
-              </button>
-            </div>
+        <div className="col-md-3 text-right">
+          <button
+            className="pull-right btn btn-sm btn-primary"
+            onClick={store.initiateNewContact}
+          >
+            <AddIcon />
+            Add Contact
+          </button>
+        </div>
+      </header>
+
+      {store.state === "loading" ? (
+        <Loading />
+      ) : store.state === "error" ? (
+        <StretchBox>
+          <div className="text-danger">Failed to load contacts</div>
+          <div>
+            <button
+              className="btn btn-xlg btn-primary"
+              onClick={() => store.load()}
+            >
+              Retry
+            </button>
           </div>
-          <div className="contactsList">
+        </StretchBox>
+      ) : (
+        <div className="contactsPage card">
+          <>
+            <ContactsSearchBar
+              filter={store.filter}
+              onFilterChanged={filter => (store.filter = filter)}
+            />
             <ContactsList
               contacts={store.filteredContacts}
-              onContactSelected={contact => (store.selectedContact = contact)}
+              onContactSelected={store.selectContact}
               selectedContact={store.selectedContact}
             />
-          </div>
-          <div className="contactDetails">
-            {store.selectedContact == null ? (
-              <div>Please select a contact</div>
-            ) : (
-              <ContactDetails contact={store.selectedContact} />
-            )}
-          </div>
+            <ContactDetails
+              status={store.selectedContactStatus}
+              contact={store.selectedContact}
+            />
+          </>
         </div>
-        {store.newContact && (
-          <AddNewContactDialog
-            contact={store.newContact}
-            onSave={store.saveNewContact}
-            onCancel={store.cancelNewContact}
-          />
-        )}
-      </div>
+      )}
+
+      {store.newContact && (
+        <AddNewContactDialog
+          contact={store.newContact}
+          onSave={store.saveNewContact}
+          onCancel={store.cancelNewContact}
+        />
+      )}
     </>
   ));
 };

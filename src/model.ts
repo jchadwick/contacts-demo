@@ -5,6 +5,15 @@ type PhoneNumberString = string;
 type EmailAddressString = string;
 type UrlString = string;
 
+export type AsyncDataStatus = "init" | "loading" | "ready" | "error";
+
+export type NotificationType =
+  | "info"
+  | "primary"
+  | "secondary"
+  | "success"
+  | "danger";
+
 export class Contact {
   readonly id: number = null;
   @observable displayName: string = "";

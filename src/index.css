@@ -12,10 +12,11 @@ code {
     monospace;
 }
 
-.alert {
+.alert.notifications {
   position: absolute !important;
   top: 0.4em;
   width: calc(100vw - 25vw);
+  z-index: 2000;
 }
 
 .modal {

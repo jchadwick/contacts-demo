@@ -11,11 +11,13 @@ export const ContactsSearchBar = ({
   onFilterChanged
 }: ContactsSearchBarProps) =>
   useObserver(() => (
-    <input
-      type="text"
-      className="form-control"
-      placeholder="Search Contacts"
-      value={filter}
-      onChange={evt => onFilterChanged(evt.currentTarget.value)}
-    />
+    <div className="contactsSearchBar">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search Contacts"
+        value={filter}
+        onChange={evt => onFilterChanged(evt.currentTarget.value)}
+      />
+    </div>
   ));

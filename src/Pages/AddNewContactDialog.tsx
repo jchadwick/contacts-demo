@@ -1,6 +1,7 @@
 import { Contact } from "../model";
 import React from "react";
 import { useObserver } from "mobx-react-lite";
+import { FormField } from "../components/FormField";
 
 interface AddNewContactDialogProps {
   contact?: Contact;
@@ -61,17 +62,3 @@ export const AddNewContactDialog = ({
     </div>
   ));
 };
-
-const FormField = ({ label, model, name, field = "value", ...props }) =>
-  useObserver(() => (
-    <div className="form-group">
-      <label>{label}</label>
-      <input
-        className="form-control"
-        placeholder={label}
-        {...props}
-        value={model[name] || ""}
-        onChange={evt => (model[name] = evt.target[field])}
-      />
-    </div>
-  ));

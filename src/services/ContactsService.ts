@@ -22,7 +22,7 @@ export class ContactsService extends RestfulService {
   deleteContact = (contactId: number) => this.delete(contactId);
 
   getContact = (contactId: number) =>
-    this.get(contactId).then(x => x.map(y => new Contact(y)));
+    this.get(contactId).then(y => (y == null ? null : new Contact(y)));
 
   getContacts = () => this.get().then(x => x.map(y => new Contact(y)));
 
