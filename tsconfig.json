@@ -17,5 +17,5 @@
     "jsx": "react",
     "isolatedModules": true
   },
-  "include": ["src"]
+  "include": ["src", "public/serviceWorker-retryFailedRequests.ts"]
 }
