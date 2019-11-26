@@ -1,17 +1,19 @@
-let requestQueue = {};
+let requestHistory = {};
 
 module.exports = function ChaosMonkey(req, res, next) {
   const requestKey = `${req.method} ${req.originalUrl}`;
   const requestedStatusCode = Number(req.query.chaos);
 
+  const requestCount = requestHistory[requestKey];
+
   // trigger chaos if this is the first request to this URL
   // or the user asked for it (via querystring)
   const introduceALittleAnarchy =
-    requestQueue[requestKey] == null || requestedStatusCode;
+    requestedStatusCode || (requestCount || 0) < 4;
 
   if (introduceALittleAnarchy) {
     // Track chaos so we don't trigger it next time
-    requestQueue[requestKey] = true;
+    requestHistory[requestKey] = (requestHistory[requestKey] || 0) + 1;
 
     setTimeout(
       () => {
@@ -25,7 +27,7 @@ module.exports = function ChaosMonkey(req, res, next) {
     );
   } else {
     // Untrack chaos so it can be triggered next time
-    delete requestQueue[requestKey];
+    delete requestHistory[requestKey];
 
     // introduce a delay to all requests to mimic network latency
     setTimeout(next, 200);
