@@ -1,6 +1,20 @@
 let requestHistory = {};
+let chaosEnabled = true;
 
 module.exports = function ChaosMonkey(req, res, next) {
+  if (req.originalUrl.indexOf("chaos") === 1) {
+    const { enabled } = req.query;
+
+    // if the querystring was passed, then update the value
+    if (enabled != null) {
+      chaosEnabled = enabled == "1" || enabled == "true";
+      console.log("Chaos monkey enabled: ", chaosEnabled);
+    }
+
+    res.send({ chaosEnabled });
+    return;
+  }
+
   const requestKey = `${req.method} ${req.originalUrl}`;
   const requestedStatusCode = Number(req.query.chaos);
 
@@ -11,7 +25,7 @@ module.exports = function ChaosMonkey(req, res, next) {
   const introduceALittleAnarchy =
     requestedStatusCode || (requestCount || 0) < 4;
 
-  if (introduceALittleAnarchy) {
+  if (chaosEnabled && introduceALittleAnarchy) {
     // Track chaos so we don't trigger it next time
     requestHistory[requestKey] = (requestHistory[requestKey] || 0) + 1;
 
