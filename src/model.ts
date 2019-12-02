@@ -1,11 +1,16 @@
-import { observable } from "mobx";
+import { observable, computed, action } from "mobx";
 
 type DateString = string;
 type PhoneNumberString = string;
 type EmailAddressString = string;
 type UrlString = string;
 
-export type AsyncDataStatus = "init" | "loading" | "ready" | "error";
+export type AsyncDataStatus =
+  | "init"
+  | "loading"
+  | "updating"
+  | "ready"
+  | "error";
 
 export type NotificationType =
   | "info"
@@ -15,8 +20,7 @@ export type NotificationType =
   | "danger";
 
 export class Contact {
-  readonly id: number = null;
-  @observable displayName: string = "";
+  @observable id: number = null;
   @observable firstName: string = "";
   @observable lastName: string = "";
   @observable dateOfBirth?: DateString = "";
@@ -24,6 +28,12 @@ export class Contact {
   @observable emailAddress?: EmailAddressString = "";
   @observable occupation?: string = "";
   @observable profileImageUrl?: UrlString = "";
+  @observable status?: AsyncDataStatus = "init";
+
+  @computed
+  get displayName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 
   constructor(source?: Partial<Contact>) {
     Object.assign(this, source || {});

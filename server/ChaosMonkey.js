@@ -8,7 +8,10 @@ module.exports = function ChaosMonkey(req, res, next) {
     // if the querystring was passed, then update the value
     if (enabled != null) {
       chaosEnabled = enabled == "1" || enabled == "true";
-      console.log("Chaos monkey enabled: ", chaosEnabled);
+      console.log("Chaos monkey: ", chaosEnabled ? "enabled" : "disabled");
+
+      // reset the history
+      requestHistory = {};
     }
 
     res.send({ chaosEnabled });

@@ -21,7 +21,24 @@ app.use(bodyParser.json());
 
 app.get("/", (_, res) => res.send("Ok"));
 
-app.get("/contacts", (_, res) => res.send(contacts));
+app.get("/contacts", (req, res) => {
+  const { q } = req.query;
+
+  const query = (q || "").toLowerCase();
+
+  if (query) {
+    const filtered = contacts.filter(x =>
+      [x.displayName, x.emailAddress, x.id]
+        .join("|")
+        .toLowerCase()
+        .includes(query.toLowerCase())
+    );
+
+    res.send(filtered);
+  } else {
+    res.send(contacts);
+  }
+});
 
 app.get("/contacts/suggest/:query", (req, res) => {
   const query = (req.params.query || "").toLowerCase();

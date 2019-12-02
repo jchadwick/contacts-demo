@@ -22,3 +22,16 @@ code {
 .modal {
   display: block !important;
 }
+
+.chaos-monkey {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 2000;
+}
+
+.popover {
+  background: #fff;
+  padding: .1em;
+  border-radius: 15px;
+}
