@@ -3,9 +3,11 @@ import { Router, Link, LinkGetProps } from "@reach/router";
 import { ContactsPage } from "./Pages/ContactsPage";
 import { DiagnosticsPage } from "./Pages/DiagnosticsPage";
 import clsx from "clsx";
+import { ChaosMonkey } from "./components/ChaosMonkey";
 
 export const App = () => (
   <div id="app" className="container">
+    <ChaosMonkey />
     <MainNav />
     <Router>
       <DiagnosticsPage path="diag" />

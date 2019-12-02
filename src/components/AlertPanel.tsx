@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { useObserver } from "mobx-react-lite";
 import { NotificationType } from "../model";
 
-interface SnackbarProps {
+interface AlertPanelProps {
   className?: string;
   type?: NotificationType;
   message: string;
@@ -16,7 +16,7 @@ export const AlertPanel = ({
   message,
   onClose,
   hideAfter = null
-}: SnackbarProps) => {
+}: AlertPanelProps) => {
   const contents = useMemo(() => {
     if (typeof message === "string") {
       return message;

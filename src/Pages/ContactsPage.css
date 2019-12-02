@@ -60,7 +60,7 @@ body {
   border-radius: calc(var(--imgSize) / 2);
   object-fit: cover;
 }
-.contactsList .list-group-item div {
+.contactsList .list-group-item .content {
   flex-grow: 1;
   font-size: 110%;
 }

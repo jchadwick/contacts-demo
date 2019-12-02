@@ -8,23 +8,32 @@ interface AutoSuggestResult {
 }
 
 export class ContactsService extends RestfulService {
-  createContact = async (contact: Omit<Contact, "id">) => {
-    const saved = await $.ajax({
-      url: this.baseUrl,
+  createContact = async (contact: Omit<Contact, "id">) =>
+    fetch(this.baseUrl, {
       method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(contact)
-    });
-
-    return new Contact(saved);
-  };
+      body: JSON.stringify(contact),
+      headers: new Headers({
+        "Content-Type": "application/json",
+        "X-RetryCount": "2"
+      })
+    } as any)
+      .then(resp => (resp.json() as unknown) as Contact)
+      .then(x => new Contact(x));
 
   deleteContact = (contactId: number) => this.delete(contactId);
 
   getContact = (contactId: number) =>
-    this.get(contactId).then(y => (y == null ? null : new Contact(y)));
+    $.ajax([this.baseUrl, contactId].join("/")).then(y =>
+      y == null ? null : new Contact({ ...y, status: "ready" })
+    );
 
-  getContacts = () => this.get().then(x => x.map(y => new Contact(y)));
+  getContacts = () =>
+    this.get().then(x => x.map(y => new Contact({ ...y, status: "ready" })));
+
+  search = (query: string) =>
+    this.get([`?q=${query}`]).then(x =>
+      x.map(y => new Contact({ ...y, status: "ready" }))
+    );
 
   suggest = (query: string) =>
     this.get<AutoSuggestResult[]>(["suggest", query]);

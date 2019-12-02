@@ -2,16 +2,15 @@ import { RouteComponentProps } from "@reach/router";
 import { useObserver } from "mobx-react-lite";
 import React from "react";
 import { IoMdAdd as AddIcon } from "react-icons/io";
-import { AlertPanel } from "../components/AlertPanel";
 import { ContactDetails } from "../components/ContactDetails";
 import { ContactsList } from "../components/ContactsList";
 import { ContactsSearchBar } from "../components/ContactsSearchBar";
 import { useEventListener, useStore } from "../hooks";
 import { AddNewContactDialog } from "./AddNewContactDialog";
-import "./ContactsPage.css";
 import { ContactsPageState } from "./ContactsPageState";
 import { StretchBox } from "../components/StretchBox";
 import { Loading } from "../components/Loading";
+import "./ContactsPage.css";
 
 export const ContactsPage = (_: RouteComponentProps) => {
   const store = useStore(ContactsPageState);
@@ -39,16 +38,6 @@ export const ContactsPage = (_: RouteComponentProps) => {
 
   return useObserver(() => (
     <>
-      {store.notification && (
-        <AlertPanel
-          hideAfter={3000}
-          className="notifications"
-          type={store.notification.type}
-          message={store.notification.message}
-          onClose={store.clearNotification}
-        />
-      )}
-
       <header className="row">
         <h2 className="title col-md-9">My Contacts</h2>
 
@@ -85,8 +74,9 @@ export const ContactsPage = (_: RouteComponentProps) => {
               onFilterChanged={filter => (store.filter = filter)}
             />
             <ContactsList
-              contacts={store.filteredContacts}
+              contacts={store.contacts}
               onContactSelected={store.selectContact}
+              retryContactUpdate={store.retryContactUpdate}
               selectedContact={store.selectedContact}
             />
             <ContactDetails

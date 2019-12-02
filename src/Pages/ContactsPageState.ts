@@ -1,28 +1,26 @@
-import { Contact, NotificationType, AsyncDataStatus } from "../model";
-import { observable, computed } from "mobx";
+import { Contact, AsyncDataStatus } from "../model";
+import { observable, computed, toJS, reaction } from "mobx";
 import defaultContactsService from "../services/ContactsService";
 
 export class ContactsPageState {
+  private newContactId = -1;
+
   readonly contacts = observable<Contact>([]);
 
   @observable state: AsyncDataStatus = "init";
   @observable filter = "";
   @observable selectedContact: Contact = null;
   @observable newContact: Contact = null;
-  @observable notification: { message: string; type: NotificationType } = null;
   @observable selectedContactStatus: AsyncDataStatus = "init";
 
-  @computed
-  get filteredContacts(): Contact[] {
-    const query = this.filter.toLowerCase();
-    return this.contacts.filter(x =>
-      (x.displayName || "").toLowerCase().includes(query)
-    );
+  constructor(private readonly contactsService = defaultContactsService) {
+    reaction(() => this.filter, this.filterContacts);
   }
 
-  constructor(private readonly contactsService = defaultContactsService) {}
-
-  clearNotification = () => (this.notification = null);
+  private filterContacts = async (filter: string) => {
+    const contacts = await this.contactsService.search(filter);
+    this.contacts.replace(contacts);
+  };
 
   selectNextContact = () => this.incrementSelectedContactIndex(1);
 
@@ -33,6 +31,7 @@ export class ContactsPageState {
 
     try {
       const contacts = await this.contactsService.getContacts();
+      console.log(contacts)
       this.contacts.replace(contacts);
       this.state = "ready";
     } catch (ex) {
@@ -40,44 +39,53 @@ export class ContactsPageState {
     }
   };
 
-  initiateNewContact = () => (this.newContact = new Contact());
+  initiateNewContact = () =>
+    (this.newContact = new Contact({
+      // use a local, negative, decrementing id to track it locally
+      // until it's replaced with the id from the API after it's saved
+      id: this.newContactId--,
+      status: "init"
+    }));
 
   cancelNewContact = () => (this.newContact = null);
 
-  saveNewContact = async () => {
+  retryContactUpdate = async (contact: Contact) => {
+    contact.status = "updating";
+
+    const saveContact =
+      contact.id > 0
+        ? this.contactsService.updateContact
+        : this.contactsService.createContact;
+
     try {
-      const savedContact = await this.contactsService.createContact(
-        this.newContact
-      );
-
-      this.contacts.push(savedContact);
-      this.newContact = null;
-
-      this.displayNotification(
-        `Saved new contact ${savedContact.displayName}`,
-        "success"
-      );
+      const toSave = toJS(contact);
+      const saved = await saveContact(toSave);
+      Object.assign(contact, saved);
+      contact.status = "ready";
     } catch (ex) {
-      this.displayError(ex);
+      contact.status = "error";
+      console.error(`Error saving contact`, ex);
     }
   };
 
-  displayNotification = (message: string, type: NotificationType = "info") => {
-    console.debug(`[${type}] ${message}`);
-    this.notification = { message, type };
-  };
+  saveNewContact = async () => {
+    const contact = this.newContact;
 
-  displayError = error => {
-    let notification: string = null;
+    contact.status = "updating";
 
-    if (typeof error === "string") {
-      notification = error;
-    } else {
-      const { message, responseText } = error || {};
-      notification = message || responseText || JSON.stringify(error);
+    this.contacts.push(contact);
+
+    this.newContact = null;
+
+    try {
+      const toSave = toJS(contact);
+      const saved = await this.contactsService.createContact(toSave);
+      Object.assign(contact, saved);
+      contact.status = "ready";
+    } catch (ex) {
+      contact.status = "error";
+      console.error(`Error saving contact`, ex);
     }
-
-    this.displayNotification(notification, "danger");
   };
 
   selectContact = async ({ id }: { id: number }) => {
@@ -88,10 +96,16 @@ export class ContactsPageState {
     this.selectedContactStatus = "loading";
 
     let contact: Contact = null;
+
     try {
       contact = await this.contactsService.getContact(id);
     } catch (ex) {
-      console.error("Failed to load contact!");
+      console.warn("Failed to load contact!");
+    }
+
+    // if we didn't get one from the server, grab a local one (if we have it)
+    if (contact == null) {
+      contact = this.contacts.find(x => x.id === id);
     }
 
     if (contact == null) {
@@ -104,7 +118,7 @@ export class ContactsPageState {
 
   private incrementSelectedContactIndex = (increment: number) => {
     const contactIndex =
-      this.filteredContacts.indexOf(this.selectedContact) + increment;
-    this.selectedContact = this.filteredContacts[contactIndex];
+      this.contacts.indexOf(this.selectedContact) + increment;
+    this.selectContact(this.contacts[contactIndex]);
   };
 }

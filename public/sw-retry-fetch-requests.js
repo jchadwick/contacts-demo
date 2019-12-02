@@ -16,7 +16,7 @@ const updateOnlineStatus = () =>
 
 const DefaultRetryCount = 5;
 
-function DefaultRetryDelay(attempt) {
+function calculateRetryDelay(attempt) {
   if (!navigator.onLine) {
     console.debug(
       `No network connection detected -- waiting an hour to try again`
@@ -31,24 +31,24 @@ function DefaultRetryDelay(attempt) {
 
 addEventListener("fetch", event => {
   const { request } = event;
-  const { retryCount, retryDelay } = request;
 
-  event.respondWith(
-    fetchWithRetry({
-      request,
-      retryCount: retryCount || DefaultRetryCount,
-      retryDelay: retryDelay || DefaultRetryDelay
-    })
+  const retryCount = Number(
+    request.headers.get("X-RetryCount") || DefaultRetryCount
   );
+
+  // event.respondWith(
+  //   fetchWithRetry({
+  //     request,
+  //     retryCount
+  //   })
+  // );
 });
 
-function fetchWithRetry({
-  request,
-  retryAttempt = 1,
-  retryCount,
-  retryDelay,
-  url
-}) {
+function fetchWithRetry({ request, retryAttempt = 1, retryCount, url }) {
+  const retryDelay = calculateRetryDelay(retryAttempt);
+
+  console.log(`Retry count: ${retryCount}; delay: ${retryDelay}`);
+
   publishMessage("[POSTMESSAGE] Retrying!");
 
   return new Promise((resolve, reject) => {
@@ -73,12 +73,11 @@ function fetchWithRetry({
             url: request.url,
             request,
             retryAttempt: retryAttempt + 1,
-            retryCount,
-            retryDelay
+            retryCount
           })
             .then(resolve)
             .catch(reject),
-        retryDelay(retryAttempt)
+        retryDelay
       );
     };
 
