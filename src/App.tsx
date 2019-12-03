@@ -4,15 +4,29 @@ import { ContactsPage } from "./Pages/ContactsPage";
 import { DiagnosticsPage } from "./Pages/DiagnosticsPage";
 import clsx from "clsx";
 import { ChaosMonkey } from "./components/ChaosMonkey";
+import { ServerStatus } from "./components/ServerStatus";
+import { OfflineNotification } from "./components/OfflineNotification";
 
 export const App = () => (
-  <div id="app" className="container">
+  <>
+    <OfflineNotification />
+
+    <div id="app" className="container">
+      <MainNav />
+      <Router>
+        <DiagnosticsPage path="diag" />
+        <ContactsPage default path="contacts" />
+      </Router>
+    </div>
+
+    <DebugTools />
+  </>
+);
+
+const DebugTools = () => (
+  <div className="debug-tools">
+    <ServerStatus />
     <ChaosMonkey />
-    <MainNav />
-    <Router>
-      <DiagnosticsPage path="diag" />
-      <ContactsPage default path="contacts" />
-    </Router>
   </div>
 );
 
