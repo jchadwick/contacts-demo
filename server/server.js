@@ -20,13 +20,15 @@ app.use(bodyParser.json());
 app.get("/", (_, res) => res.send("Ok"));
 
 let onlineStatus = 200;
-app.all("/status", (req, res) => {
+app.all("/status", (_, res) => res.sendStatus(onlineStatus));
+app.all("/status/current", (req, res) => {
   const { code } = req.query;
+
   if (code && !isNaN(Number(code))) {
     onlineStatus = Number(code);
   }
 
-  res.sendStatus(onlineStatus);
+  res.send(String(onlineStatus));
 });
 
 app.use(ChaosMonkey);

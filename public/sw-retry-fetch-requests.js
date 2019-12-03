@@ -1,64 +1,111 @@
 /* eslint-disable */
-console.info("Loaded service worker!");
-
-const publishMessage = async message => {
-  const clients = await this.clients.matchAll();
-  clients.forEach(client => client.postMessage(message));
-};
-
-const updateOnlineStatus = () =>
-  publishMessage({ type: "online_status", isOnline: navigator.onLine });
-
-(function listenForOffline() {
-  addEventListener("online", updateOnlineStatus);
-  addEventListener("offline", updateOnlineStatus);
-})();
+console.info("Loading service worker...");
 
 const DefaultRetryCount = 5;
+const DefaulServerStatusEndpoint = "http://localhost:8080/status";
 
-function calculateRetryDelay(attempt) {
-  if (!navigator.onLine) {
-    console.debug(
-      `No network connection detected -- waiting an hour to try again`
-    );
-    return 60 * 60 * 1000; // 1 hr
+const postMessage = async message => {
+  const allClients = await clients.matchAll();
+  for (const client of allClients) {
+    client.postMessage(message);
+  }
+};
+
+const getOnlineStatus = (serverStatusEndpoint => {
+  let onlineStatus = "online";
+
+  addEventListener("online", () => (onlineStatus = "online"));
+  addEventListener("offline", () => (onlineStatus = "offline"));
+
+  async function getServerStatus() {
+    // this is a poll, but could just as well be a WebSocket or something similar
+    const serverStatus = await fetch(serverStatusEndpoint, { method: "POST" })
+      .then(resp => (resp.status < 400 ? "online" : "offline"))
+      .catch(() => "offline");
+
+    if (serverStatus != onlineStatus) {
+      onlineStatus = serverStatus;
+      postMessage({ type: "online_status", status: onlineStatus });
+    }
+
+    setTimeout(() => getServerStatus(), 1000);
   }
 
-  const delay = attempt == 1 ? 0 : Math.pow(2, attempt) * 500;
-  console.debug(`Retry Delay: ${delay}`);
-  return delay;
-}
+  getServerStatus();
+
+  return () => (!navigator.onLine ? "offline" : onlineStatus);
+})(DefaulServerStatusEndpoint);
+
+const queueOfflineRequest = (() => {
+  let requestQueue = [];
+
+  async function processQueue() {
+    const status = getOnlineStatus();
+
+    if (status === "online") {
+      await executeQueuedRequests();
+    }
+
+    setTimeout(() => processQueue(), 1000);
+  }
+
+  async function executeQueuedRequests() {
+    if (!requestQueue.length) return;
+
+    const { request, resolve, reject } = requestQueue.pop();
+
+    console.debug(`Executing queued request ${request.method} ${request.url}`);
+
+    await fetchWithRetry({ request })
+      .then(resolve)
+      .catch(reject);
+
+    return executeQueuedRequests();
+  }
+
+  processQueue();
+
+  console.debug("Initialized offline request queue");
+
+  return request => {
+    const queuedRequest = new Promise((resolve, reject) =>
+      requestQueue.push({ request, resolve, reject })
+    );
+
+    console.debug(
+      `[OfflineQueue:${requestQueue.length}] ${request.method} ${request.url}`
+    );
+
+    return queuedRequest;
+  };
+})();
 
 addEventListener("fetch", event => {
   const { request } = event;
-
-  const retryCount = Number(
-    request.headers.get("X-RetryCount") || DefaultRetryCount
-  );
-
-  // event.respondWith(
-  //   fetchWithRetry({
-  //     request,
-  //     retryCount
-  //   })
-  // );
+  event.respondWith(fetchWithRetry({ request }));
 });
 
-function fetchWithRetry({ request, retryAttempt = 1, retryCount, url }) {
-  const retryDelay = calculateRetryDelay(retryAttempt);
-
-  console.log(`Retry count: ${retryCount}; delay: ${retryDelay}`);
-
-  publishMessage("[POSTMESSAGE] Retrying!");
+function fetchWithRetry({
+  request,
+  retryAttempt = 1,
+  retryCount = DefaultRetryCount,
+  url
+}) {
+  // use an expoentitally increasing delay
+  const retryDelay = retryAttempt == 1 ? 0 : Math.pow(2, retryAttempt) * 500;
 
   return new Promise((resolve, reject) => {
-    console.debug("Executing with retry");
+    const retryRequest = () => {
+      if (getOnlineStatus() === "offline") {
+        queueOfflineRequest(request)
+          .then(resolve)
+          .catch(reject);
 
-    const retryRequest = (resolve, reject) => {
-      console.warn("Request Failed!");
+        return;
+      }
 
       console.debug(
-        `Retry attempt ${retryAttempt}; Retry Count: ${retryCount}`
+        `Retrying (attempt ${retryAttempt} / ${retryCount}; delay: ${retryDelay}) ${request.method} ${request.url}`
       );
 
       if (retryAttempt > retryCount) {
@@ -92,3 +139,5 @@ function fetchWithRetry({ request, retryAttempt = 1, retryCount, url }) {
       .catch(() => retryRequest(resolve, reject));
   });
 }
+
+console.info("Service worker loaded");

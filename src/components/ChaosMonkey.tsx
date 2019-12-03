@@ -36,7 +36,7 @@ export const ChaosMonkey = () => {
         disabled: !chaosEnabled
       })}
     >
-      <button role="button" className="btn btn-light" onClick={toggleChaosMonkey}>
+      <button role="button" className="btn btn-dark" onClick={toggleChaosMonkey}>
         <BulbIcon style={{ color: chaosEnabled ? "green" : "red" }} />
         Chaos Monkey
       </button>
