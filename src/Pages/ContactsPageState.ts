@@ -31,7 +31,6 @@ export class ContactsPageState {
 
     try {
       const contacts = await this.contactsService.getContacts();
-      console.log(contacts)
       this.contacts.replace(contacts);
       this.state = "ready";
     } catch (ex) {
