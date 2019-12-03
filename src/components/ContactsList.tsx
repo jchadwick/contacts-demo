@@ -1,4 +1,4 @@
-import React, { useState, PropsWithChildren } from "react";
+import React, { useState } from "react";
 import { IoIosAlert as ErrorIcon } from "react-icons/io";
 import Popover from "react-tiny-popover";
 import { useObserver } from "mobx-react-lite";

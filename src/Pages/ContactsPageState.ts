@@ -1,5 +1,5 @@
 import { Contact, AsyncDataStatus } from "../model";
-import { observable, computed, toJS, reaction } from "mobx";
+import { observable, toJS, reaction } from "mobx";
 import defaultContactsService from "../services/ContactsService";
 
 export class ContactsPageState {
