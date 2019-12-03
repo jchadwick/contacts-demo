@@ -10,8 +10,6 @@ const app = express();
 
 app.use(cors({ origin: "*" }));
 
-app.use(ChaosMonkey);
-
 app.use(({ method, originalUrl }, res, next) => {
   next();
   console.log(`${method} ${originalUrl} => ${res.statusCode}`);
@@ -20,6 +18,18 @@ app.use(({ method, originalUrl }, res, next) => {
 app.use(bodyParser.json());
 
 app.get("/", (_, res) => res.send("Ok"));
+
+let onlineStatus = 200;
+app.all("/status", (req, res) => {
+  const { code } = req.query;
+  if (code && !isNaN(Number(code))) {
+    onlineStatus = Number(code);
+  }
+
+  res.sendStatus(onlineStatus);
+});
+
+app.use(ChaosMonkey);
 
 app.get("/contacts", (req, res) => {
   const { q } = req.query;
