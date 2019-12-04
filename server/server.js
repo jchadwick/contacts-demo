@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 app.get("/", (_, res) => res.send("Ok"));
 
 let onlineStatus = 200;
+
 app.all("/status", (req, res) => {
   const { code } = req.query;
   if (code && !isNaN(Number(code))) {

@@ -6,13 +6,21 @@ import clsx from "clsx";
 import { ChaosMonkey } from "./components/ChaosMonkey";
 
 export const App = () => (
-  <div id="app" className="container">
+  <>
+    <div id="app" className="container">
+      <MainNav />
+      <Router>
+        <DiagnosticsPage path="diag" />
+        <ContactsPage default path="contacts" />
+      </Router>
+    </div>
+    <DevPanel />
+  </>
+);
+
+const DevPanel = () => (
+  <div className="dev-panel">
     <ChaosMonkey />
-    <MainNav />
-    <Router>
-      <DiagnosticsPage path="diag" />
-      <ContactsPage default path="contacts" />
-    </Router>
   </div>
 );
 

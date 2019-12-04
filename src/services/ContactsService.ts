@@ -13,8 +13,7 @@ export class ContactsService extends RestfulService {
       method: "POST",
       body: JSON.stringify(contact),
       headers: new Headers({
-        "Content-Type": "application/json",
-        "X-RetryCount": "2"
+        "Content-Type": "application/json"
       })
     } as any)
       .then(resp => (resp.json() as unknown) as Contact)

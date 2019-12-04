@@ -14,6 +14,7 @@ code {
 
 .alert.notifications {
   position: absolute !important;
+  left: 12.5vw;
   top: 0.4em;
   width: calc(100vw - 25vw);
   z-index: 2000;
@@ -23,15 +24,24 @@ code {
   display: block !important;
 }
 
-.chaos-monkey {
+.dev-panel {
   position: fixed;
-  top: 10px;
+  bottom: 10px;
   right: 10px;
   z-index: 2000;
+  display: flex;
+  flex-direction: row;
+  border: 1px #444 solid;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 0.5em 1em;
+  justify-content: space-between;
+  width: 20em;
+  align-items: center;
 }
 
 .popover {
   background: #fff;
-  padding: .1em;
+  padding: 0.1em;
   border-radius: 15px;
 }
