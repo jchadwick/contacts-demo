@@ -67,7 +67,6 @@ app.get("/contacts/suggest/:query", (req, res) => {
 
 app.post("/contacts", (req, res) => {
   const {
-    displayName,
     emailAddress,
     profileImageUrl,
     firstName,
@@ -78,7 +77,6 @@ app.post("/contacts", (req, res) => {
 
   const contact = {
     id,
-    displayName: displayName ? displayName : `${firstName} ${lastName}`.trim(),
     firstName,
     lastName,
     emailAddress,
