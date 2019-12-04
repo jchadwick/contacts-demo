@@ -52,7 +52,7 @@ const queueOfflineRequest = (() => {
   async function executeQueuedRequests() {
     if (!requestQueue.length) return;
 
-    const { request, resolve, reject } = requestQueue.pop();
+    const { request, resolve, reject } = requestQueue.shift();
 
     console.debug(`Executing queued request ${request.method} ${request.url}`);
 
