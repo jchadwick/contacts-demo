@@ -3,8 +3,11 @@ import React, { useState, useEffect, useCallback } from "react";
 export const ServerStatus = () => {
   const [serverStatus, setServerStatus] = useState();
 
-  const setServerStatusFromResponse = async resp =>
-    setServerStatus(String(await resp.json()));
+  const setServerStatusFromResponse = async resp => {
+    if ("json" in resp) {
+      setServerStatus(String(await resp.json()));
+    }
+  };
 
   useEffect(() => {
     fetch("http://localhost:8080/status/current", { method: "POST" })
@@ -22,7 +25,9 @@ export const ServerStatus = () => {
 
   return (
     <div>
-      <label style={{ paddingRight: 5}} htmlFor="serverStatus">API Status:</label>
+      <label style={{ paddingRight: 5 }} htmlFor="serverStatus">
+        API Status:
+      </label>
       <select
         id="serverStatus"
         value={serverStatus}
