@@ -1,12 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const { observable } = require("mobx");
 const ChaosMonkey = require("./ChaosMonkey");
 const contacts = require("./contacts.json");
+const WebSocket = require("ws");
 
 let contactId = contacts.reduce((max, { id }) => Math.max(max, id), 0) + 1;
 
 const app = express();
+require("express-ws")(app);
 
 app.use(cors({ origin: "*" }));
 
@@ -19,16 +22,29 @@ app.use(bodyParser.json());
 
 app.get("/", (_, res) => res.send("Ok"));
 
-let onlineStatus = 200;
-app.all("/status", (_, res) => res.sendStatus(onlineStatus));
-app.all("/status/current", (req, res) => {
+let onlineStatus = observable.box(200);
+app.post("/status", (_, res) => res.sendStatus(onlineStatus.get()));
+app.post("/status/current", (req, res) => {
   const { code } = req.query;
 
   if (code && !isNaN(Number(code))) {
-    onlineStatus = Number(code);
+    onlineStatus.set(Number(code));
   }
 
-  res.send(String(onlineStatus));
+  res.send(String(onlineStatus.get()));
+});
+app.ws("/status/ws", function(ws, req) {
+  const sendStatusUpdate = () => {
+    try {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(String(onlineStatus.get()));
+      }
+    } catch {
+      /* NOOP */
+    }
+  };
+
+  onlineStatus.observe(sendStatusUpdate, true);
 });
 
 app.use(ChaosMonkey);
@@ -66,12 +82,7 @@ app.get("/contacts/suggest/:query", (req, res) => {
 });
 
 app.post("/contacts", (req, res) => {
-  const {
-    emailAddress,
-    profileImageUrl,
-    firstName,
-    lastName
-  } = req.body;
+  const { emailAddress, profileImageUrl, firstName, lastName } = req.body;
 
   const id = contactId++;
 
