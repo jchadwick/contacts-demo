@@ -12,14 +12,17 @@ export class ContactsPageState {
   @observable selectedContact: Contact = null;
   @observable newContact: Contact = null;
   @observable selectedContactStatus: AsyncDataStatus = "init";
+  @observable isLoadingContacts: boolean = false;
 
   constructor(private readonly contactsService = defaultContactsService) {
     reaction(() => this.filter, this.filterContacts);
   }
 
   private filterContacts = async (filter: string) => {
+    this.isLoadingContacts = true;
     const contacts = await this.contactsService.search(filter);
     this.contacts.replace(contacts);
+    this.isLoadingContacts = false;
   };
 
   selectNextContact = () => this.incrementSelectedContactIndex(1);
@@ -28,10 +31,12 @@ export class ContactsPageState {
 
   load = async () => {
     this.state = "loading";
+    this.isLoadingContacts = true;
 
     try {
       const contacts = await this.contactsService.getContacts();
       this.contacts.replace(contacts);
+      this.isLoadingContacts = false;
       this.state = "ready";
     } catch (ex) {
       this.state = "error";

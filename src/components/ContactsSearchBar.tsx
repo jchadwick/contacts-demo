@@ -14,6 +14,7 @@ export const ContactsSearchBar = ({
     <div className="contactsSearchBar">
       <input
         type="text"
+        name="contacts-search-bar"
         className="form-control"
         placeholder="Search Contacts"
         value={filter}
