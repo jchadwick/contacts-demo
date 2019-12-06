@@ -74,6 +74,7 @@ export const ContactsPage = (_: RouteComponentProps) => {
               onFilterChanged={filter => (store.filter = filter)}
             />
             <ContactsList
+              isLoading={store.isLoadingContacts}
               contacts={store.contacts}
               onContactSelected={store.selectContact}
               retryContactUpdate={store.retryContactUpdate}

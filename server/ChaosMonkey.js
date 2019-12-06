@@ -1,5 +1,5 @@
 let requestHistory = {};
-let chaosEnabled = true;
+let chaosEnabled = false;
 
 module.exports = function ChaosMonkey(req, res, next) {
   if (req.originalUrl.indexOf("chaos") === 1) {

@@ -56,11 +56,9 @@ app.get("/contacts", (req, res) => {
 
   if (query) {
     const filtered = contacts.filter(x =>
-      [x.displayName, x.emailAddress, x.id]
-        .join("|")
-        .toLowerCase()
-        .includes(query.toLowerCase())
+      searchValue(x).includes(query.toLowerCase())
     );
+    console.log(`Filtered: ${filtered.map(x => x.displayName).join(", ")}`);
 
     res.send(filtered);
   } else {
@@ -68,9 +66,13 @@ app.get("/contacts", (req, res) => {
   }
 });
 
+const searchValue = contact =>
+  `${contact.firstName}|${contact.lastName}|${contact.emailAddress}`.toLowerCase();
+
 app.get("/contacts/suggest/:query", (req, res) => {
   const query = (req.params.query || "").toLowerCase();
-  const filtered = contacts.filter(x => x.displayName.includes(query));
+  const filtered = contacts.filter(x => searchValue(x).includes(query));
+  console.log(`Filtered: ${filtered.map(x => x.displayName).join(", ")}`);
 
   const results = filtered.map(({ id, displayName, profileImageUrl }) => ({
     id,
